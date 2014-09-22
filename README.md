@@ -53,11 +53,13 @@ set :bundler_path, "path_to_bundler"
 set :output, {:error => 'log/error.log', :standard => 'log/cron.log'}
 
 every 1.minute do
-  runner "Cron::PrintResult.print_now"
+  runner "Runners::TestRunner.display_system_datetime"
 end
 ```
 
 `"path_to_bundler"`는 `which bundle` 명령으로 찾은 경로를 추가로 지정해 주면 된다. 이 때 경로 끝에 `/`는 제거해 주어야 한다.
+
+> **주의** : **zsh** 사용할 경우에는 **schedule.rb** 파일에 `set :job_template, "zsh -l -c ':job'"` 을 추가해 주어야 한다.
 
 이제 이 파일을 가지고 아래와 같은 명령으로  **crontab** 파일을 작성해 주어야 한다.
 
@@ -68,7 +70,7 @@ $ whenever --update-crontab runner_job
 
 **runner_job**은 원하는 job 이름으로 대신해도 된다.
 
-> **runner_job**을 제거하기 위해서는 아래와 같이 명령을 실행하면 된다.
+> **참고** : **runner_job**을 제거하기 위해서는 아래와 같이 명령을 실행하면 된다.
 >```
 >$ whenever --clear-crontab runner_job
 >```
@@ -79,7 +81,7 @@ $ whenever --update-crontab runner_job
 $ crontab -l
 
 # Begin Whenever generated tasks for: runner_job
-* * * * * /bin/bash -l -c 'cd :path && bundle exec rails runner -e development '\''Cron::PrintResult.print_now'\'' >> log/cron.log 2>> log/error.log'
+* * * * * /bin/bash -l -c 'cd :path && bundle exec rails runner -e development '\''Runners::TestRunner.display_system_datetime'\'' >> log/cron.log 2>> log/error.log'
 
 # End Whenever generated tasks for: runner_job
 ```
@@ -94,7 +96,7 @@ $ crontab -l
   from bin/rails:7:in `<main>'
 ```
 
-> whenever 젬에서는 기본적으로 4개의 job 형태를 제공해 준다.
+> **참고** : **whenever** 젬에서는 기본적으로 4개의 job 형태를 제공해 준다.
 >```
 >  job_type :command, ":task :output"
 >  job_type :rake,    "cd :path && :environment_variable=:environment bundle exec rake :task --silent :output"
@@ -132,6 +134,8 @@ Cron job was executed 2014-09-22 19:58:00 +0900
 ...
 ```
 
+> **Github 소스** : https://github.com/rorlab/blog_cron_test
+
 ----
 
 **References** :
@@ -142,6 +146,7 @@ Cron job was executed 2014-09-22 19:58:00 +0900
 * [Rails3でバッチ処理を実行する](http://www.slowlydays.net/wordpress/?p=707)
 * [Rails Runnerを使ってみる](http://masa2sei.github.io/blog/2013/02/01/rails-rails-runner/)
 * [Crontab : 서버에서 주기적인 명령 실행](http://www.tested.co.kr/board/Study/view/wr_id/15/sca/5)
+* [Whenever gem is not executing task](http://stackoverflow.com/a/22837274/1217633)
 
 
 
